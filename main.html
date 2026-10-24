@@ -11,7 +11,7 @@
 
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="#find"><span aria-hidden="true">⌂</span>OKC Find Help</a>
+    <a class="brand" href="index.html"><span aria-hidden="true">⌂</span>Necessities</a>
     <nav class="tabs" aria-label="Sections">
       <a href="#find" data-view="find">Find help</a>
       <a href="#snap" data-view="snap">SNAP &amp; WIC</a>
@@ -67,6 +67,15 @@
       </div>
 
       <div class="count"><h2 id="countH">Places near you</h2><span id="countS"></span></div>
+      <div class="sortbar">
+        <label for="sortBy">Sort by</label>
+        <select id="sortBy">
+          <option value="distance">Distance</option>
+          <option value="category">Category (shelters, pantries, meals…)</option>
+          <option value="open">Open now first</option>
+          <option value="name">Name A–Z</option>
+        </select>
+      </div>
       <div class="list" id="list"></div>
     </div>
 
@@ -95,55 +104,66 @@
     <h2>Food assistance programs</h2>
     <p>SNAP (food stamps) and WIC put money on a card for groceries every month. Here's how to apply in Oklahoma and where to get help with the paperwork.</p>
   </div>
-  <div class="grid">
-    <div class="box">
-      <div class="eyebrow">SNAP · food stamps</div>
-      <h3>Apply for SNAP</h3>
-      <ol>
-        <li>Apply online at OKDHSLive. It's the fastest way, and you can save and finish later.</li>
-        <li>Upload any documents they ask for, like pay stubs or ID.</li>
-        <li>Oklahoma Human Services calls you for a short interview.</li>
-        <li>If approved, your benefits arrive on an EBT card you use like a debit card.</li>
-      </ol>
-      <p class="note">Households with very little income may get expedited benefits within about 7 days. Most decisions take up to 30 days.</p>
-      <a class="linkbtn" href="https://www.okdhslive.org/" target="_blank" rel="noopener">Apply at okdhslive.org</a>
-    </div>
-    <div class="box">
-      <div class="eyebrow">Free help applying</div>
-      <h3>Talk to a person</h3>
-      <div class="kv">
-        <div><span>Hunger Free Oklahoma SNAP Hotline</span><span class="phone">1-877-760-0114</span></div>
-        <div><span>Hotline hours</span><span>Mon–Fri, 8 am–6 pm (English &amp; Spanish)</span></div>
-        <div><span>Oklahoma Human Services</span><span class="phone">405-522-5050</span></div>
-        <div><span>Lost or stolen EBT card</span><span class="phone">1-888-328-6551</span></div>
-      </div>
-      <div class="callout">Since Feb. 15, 2026, Oklahoma SNAP can no longer be used for candy or soft drinks.</div>
-      <p class="note">No computer? Most public libraries offer free internet, and staff can help you get started.</p>
-    </div>
-    <div class="box">
-      <div class="eyebrow">Double Up Oklahoma</div>
-      <h3>Get more produce for your SNAP</h3>
-      <p>Spend SNAP at a participating market or store and Double Up matches it dollar for dollar, up to $20 a day, for Oklahoma-grown fruits and vegetables. Everyone on SNAP qualifies automatically.</p>
-      <ul>
-        <li>The Market at EastPoint (northeast OKC grocery)</li>
-        <li>OKC Farmers Public Market</li>
-        <li>Eastside Fresh Market</li>
-        <li>Scissortail Park Farmers Market</li>
-      </ul>
-      <p class="note">Farmers markets are seasonal. At a market, stop by the information booth before you shop. Double Up dollars expire 60 days after you earn them.</p>
-      <a class="linkbtn ghost" href="https://www.hungerfreeok.org/resources/snap/" target="_blank" rel="noopener">Learn more at Hunger Free Oklahoma</a>
-    </div>
-    <div class="box">
-      <div class="eyebrow">WIC · moms, babies &amp; kids under 5</div>
-      <h3>Apply for WIC</h3>
-      <p>WIC provides healthy foods, infant formula, breastfeeding support and nutrition counseling for pregnant and postpartum parents, infants and children up to age 5.</p>
-      <div class="kv">
-        <div><span>OKC-County Health Dept. WIC</span><span class="phone">405-425-4384</span></div>
-        <div><span>Clinic hours</span><span>Mon–Fri 8 am–4:30 pm (Wed opens 10 am)</span></div>
-        <div><span>State WIC office</span><span class="phone">1-888-655-2942</span></div>
-      </div>
-      <p class="note">OKC clinics: North (2600 NE 63rd St), South (6728 S Hudson Ave), Hefner (2222 W Hefner Rd), West (1501 N Meridian Ave), Shepherd Center (2401 NW 23rd St, Ste 2G), and East (1701 S Air Depot Blvd, Midwest City).</p>
-      <a class="linkbtn ghost" href="https://oklahoma.gov/health/wic.html" target="_blank" rel="noopener">Oklahoma WIC</a>
+  <div class="doc">
+    <nav class="doc-nav" aria-label="On this page">
+      <button type="button" data-go="snap-apply" aria-current="true">Apply for SNAP</button>
+      <button type="button" data-go="snap-help" aria-current="false">Free help applying</button>
+      <button type="button" data-go="snap-double" aria-current="false">Double Up produce</button>
+      <button type="button" data-go="snap-wic" aria-current="false">WIC for families</button>
+    </nav>
+    <div class="doc-body" id="snapDoc" tabindex="0" aria-label="Food assistance information">
+      <section class="doc-sec" id="snap-apply">
+        <div class="eyebrow">SNAP · food stamps</div>
+        <h3>Apply for SNAP</h3>
+        <ol>
+          <li>Apply online at OKDHSLive. It's the fastest way, and you can save and finish later.</li>
+          <li>Upload any documents they ask for, like pay stubs or ID.</li>
+          <li>Oklahoma Human Services calls you for a short interview.</li>
+          <li>If approved, your benefits arrive on an EBT card you use like a debit card.</li>
+        </ol>
+        <p class="note">Households with very little income may get expedited benefits within about 7 days. Most decisions take up to 30 days.</p>
+        <a class="linkbtn" href="https://www.okdhslive.org/" target="_blank" rel="noopener">Apply at okdhslive.org</a>
+      </section>
+
+      <section class="doc-sec" id="snap-help">
+        <div class="eyebrow">Free help applying</div>
+        <h3>Talk to a person</h3>
+        <div class="kv">
+          <div><span>Hunger Free Oklahoma SNAP Hotline</span><span class="phone">1-877-760-0114</span></div>
+          <div><span>Hotline hours</span><span>Mon–Fri, 8 am–6 pm (English &amp; Spanish)</span></div>
+          <div><span>Oklahoma Human Services</span><span class="phone">405-522-5050</span></div>
+          <div><span>Lost or stolen EBT card</span><span class="phone">1-888-328-6551</span></div>
+        </div>
+        <div class="callout">Since Feb. 15, 2026, Oklahoma SNAP can no longer be used for candy or soft drinks.</div>
+        <p class="note">No computer? Most public libraries offer free internet, and staff can help you get started.</p>
+      </section>
+
+      <section class="doc-sec" id="snap-double">
+        <div class="eyebrow">Double Up Oklahoma</div>
+        <h3>Get more produce for your SNAP</h3>
+        <p>Spend SNAP at a participating market or store and Double Up matches it dollar for dollar, up to $20 a day, for Oklahoma-grown fruits and vegetables. Everyone on SNAP qualifies automatically.</p>
+        <ul>
+          <li>The Market at EastPoint (northeast OKC grocery)</li>
+          <li>OKC Farmers Public Market</li>
+          <li>Eastside Fresh Market</li>
+          <li>Scissortail Park Farmers Market</li>
+        </ul>
+        <p class="note">Farmers markets are seasonal. At a market, stop by the information booth before you shop. Double Up dollars expire 60 days after you earn them.</p>
+        <a class="linkbtn ghost" href="https://www.hungerfreeok.org/resources/snap/" target="_blank" rel="noopener">Learn more at Hunger Free Oklahoma</a>
+      </section>
+
+      <section class="doc-sec" id="snap-wic">
+        <div class="eyebrow">WIC · moms, babies &amp; kids under 5</div>
+        <h3>Apply for WIC</h3>
+        <p>WIC provides healthy foods, infant formula, breastfeeding support and nutrition counseling for pregnant and postpartum parents, infants and children up to age 5.</p>
+        <div class="kv">
+          <div><span>OKC-County Health Dept. WIC</span><span class="phone">405-425-4384</span></div>
+          <div><span>Clinic hours</span><span>Mon–Fri 8 am–4:30 pm (Wed opens 10 am)</span></div>
+          <div><span>State WIC office</span><span class="phone">1-888-655-2942</span></div>
+        </div>
+        <p class="note">OKC clinics: North (2600 NE 63rd St), South (6728 S Hudson Ave), Hefner (2222 W Hefner Rd), West (1501 N Meridian Ave), Shepherd Center (2401 NW 23rd St, Ste 2G), and East (1701 S Air Depot Blvd, Midwest City).</p>
+        <a class="linkbtn ghost" href="https://oklahoma.gov/health/wic.html" target="_blank" rel="noopener">Oklahoma WIC</a>
+      </section>
     </div>
   </div>
 </section>
@@ -154,9 +174,8 @@
     <h2>Stretch your grocery budget</h2>
     <p>Digital coupons and store apps used around Oklahoma City, plus ways to use SNAP further.</p>
   </div>
-  <div class="grid" id="storeGrid"></div>
-  <h3 class="section-h">Money-saving tips</h3>
-  <div class="grid">
+  <h3 class="section-h first">Money-saving tips</h3>
+  <div class="grid tips">
     <div class="box">
       <h3>Use SNAP online</h3>
       <p>Walmart, Amazon, and Aldi (through Instacart) accept SNAP EBT for online grocery orders, which helps if you don't have a ride to the store.</p>
@@ -175,6 +194,8 @@
       <p>The next version will pull each store's current weekly deals into one list sorted by the stores closest to you.</p>
     </div>
   </div>
+  <h3 class="section-h">Stores &amp; apps around OKC</h3>
+  <ul class="store-list" id="storeGrid"></ul>
 </section>
 
 <!-- DONATE -->
@@ -182,26 +203,55 @@
   <div class="intro">
     <h2>Give back in Oklahoma City</h2>
     <p>Every link goes to the charity's own website, so your donation goes straight to them. Food, clothing and time help just as much as money.</p>
+    <button type="button" class="btn ghost small" id="toClothes" style="margin-top:12px">Have clothes to give? See drop-off locations ↓</button>
   </div>
-  <div class="grid" id="donateGrid"></div>
-  <h3 class="section-h">Drop off items or volunteer</h3>
-  <div class="grid">
-    <div class="box">
-      <h3>City Rescue Mission</h3>
-      <p>Drop off clothing, toiletries and non-perishable food at the front desk.</p>
-      <p class="note">800 W California Ave · <span class="phone">405-232-2709</span></p>
+  <div class="give-layout">
+    <div class="give-main">
+      <div class="give-bar">
+        <div class="seg give-filter" role="group" aria-label="Filter charities">
+          <button type="button" data-tag="all" aria-pressed="true">All</button>
+          <button type="button" data-tag="Food" aria-pressed="false">Food</button>
+          <button type="button" data-tag="Shelter" aria-pressed="false">Shelter</button>
+          <button type="button" data-tag="Families" aria-pressed="false">Families</button>
+          <button type="button" data-tag="Youth" aria-pressed="false">Youth</button>
+        </div>
+        <span class="muted" id="giveCount"></span>
+      </div>
+      <div class="give-list" id="giveList" tabindex="0" aria-label="Charities"></div>
     </div>
-    <div class="box">
-      <h3>Infant Crisis Services</h3>
-      <p>Diapers, wipes, formula, baby clothes and books. Drop-off Mon–Fri, 8 am–5 pm.</p>
-      <p class="note">4224 N Lincoln Blvd · <span class="phone">405-528-3663</span></p>
-    </div>
-    <div class="box">
-      <h3>Regional Food Bank</h3>
-      <p>Volunteers sort and pack food for pantries across central and western Oklahoma. Groups and individuals welcome.</p>
-      <p class="note">3355 S Purdue Ave · <span class="phone">405-972-1111</span></p>
-    </div>
+    <aside class="give-aside">
+      <h3>Ways to give</h3>
+      <dl>
+        <div><dt>Money</dt><dd>The most flexible gift. Food banks can buy food in bulk for far less than retail.</dd></div>
+        <div><dt>Items</dt><dd>Clothing, toiletries, non-perishable food, diapers and formula. Look for "Give in person" on a charity.</dd></div>
+        <div><dt>Time</dt><dd>Sort and pack food, serve meals, or bring a group. Call ahead to schedule.</dd></div>
+      </dl>
+      <p class="note">Not sure where to start? The Regional Food Bank welcomes first-time volunteers and groups.</p>
+    </aside>
   </div>
+
+  <section class="clothes" id="donate-clothes" aria-labelledby="clothesH">
+    <div class="clothes-head">
+      <div>
+        <span class="eyebrow">Clothing drives</span>
+        <h2 id="clothesH">Donate clothes</h2>
+        <p class="muted">Where to drop off clothing, shoes and coats around Oklahoma City. Needs change with the seasons, so call ahead when a listing says to.</p>
+      </div>
+      <ul class="clothes-tips">
+        <li><b>Wash everything first.</b> Shelters can only use clean items with no stains or tears.</li>
+        <li><b>Socks and underwear:</b> new, in the package.</li>
+        <li><b>Most wanted:</b> coats, sneakers, work boots and adult basics in larger sizes.</li>
+      </ul>
+    </div>
+    <div class="seg cl-filter" role="group" aria-label="Filter clothing drop-offs">
+      <button type="button" data-cl="all" aria-pressed="true">All</button>
+      <button type="button" data-cl="direct" aria-pressed="false">To people in need</button>
+      <button type="button" data-cl="work" aria-pressed="false">Work clothes</button>
+      <button type="button" data-cl="store" aria-pressed="false">Thrift &amp; pickup</button>
+    </div>
+    <div class="clothes-list" id="clothesList"></div>
+    <p class="note">Goodwill has 16 staffed donation centers across the metro. See every location and its hours at <a href="https://okgoodwill.org/" target="_blank" rel="noopener">okgoodwill.org</a>.</p>
+  </section>
 </section>
 
 </main>

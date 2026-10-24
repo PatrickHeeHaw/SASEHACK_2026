@@ -16,19 +16,42 @@ const STORES = [
  {name:"Sprouts",what:"Weekly produce sales, with digital coupons in the Sprouts app.",url:"https://www.sprouts.com/"}
 ];
 
+// about/helps/inPerson are drawn from the listings in data.js and the drop-off details below.
 const CHARITIES = [
- {name:"Regional Food Bank of Oklahoma",what:"Supplies food to hundreds of pantries, shelters and school programs across central and western Oklahoma.",tag:"Food",url:"https://www.regionalfoodbank.org/"},
- {name:"Homeless Alliance",what:"Runs the OKC Day Shelter, the winter shelter and housing programs on the WestTown campus.",tag:"Shelter",url:"https://www.homelessalliance.org/"},
- {name:"City Rescue Mission",what:"Emergency shelter, meals and recovery programs for men, women and families since 1960.",tag:"Shelter",url:"https://www.cityrescue.org/give"},
- {name:"Infant Crisis Services",what:"Formula, food and diapers for babies and toddlers in crisis. SNAP and WIC don't cover diapers.",tag:"Families",url:"https://www.infantcrisis.org/"},
- {name:"Sisu Youth Services",what:"Overnight shelter, meals and case management for young people ages 15–24.",tag:"Youth",url:"https://www.sisuyouth.org/"},
- {name:"Hunger Free Oklahoma",what:"Runs the SNAP hotline and Double Up Oklahoma, helping families stretch food dollars.",tag:"Food",url:"https://www.hungerfreeok.org/"}
+ {name:"Regional Food Bank of Oklahoma",tag:"Food",url:"https://www.regionalfoodbank.org/",
+  what:"Supplies food to hundreds of pantries, shelters and school programs across central and western Oklahoma.",
+  about:"The food bank behind most of the pantries on this site. It collects and sorts food, then sends it out to partner pantries, meal programs and schools. It also runs its own shopper-choice Food & Resource Center in Moore, and anyone can call or text to find the closest pantry by ZIP code.",
+  helps:["Stocks partner pantries across the metro","Supplies meal programs and school food programs","Keeps a shopper-choice pantry open in Moore"],
+  inPerson:{text:"Volunteers sort and pack food for pantries across central and western Oklahoma. Groups and individuals welcome.",addr:"3355 S Purdue Ave",phone:"405-972-1111"}},
+ {name:"Homeless Alliance",tag:"Shelter",url:"https://www.homelessalliance.org/",
+  what:"Runs the OKC Day Shelter, the winter shelter and housing programs on the WestTown campus.",
+  about:"Runs the WestTown campus just west of downtown. The Day Shelter is open every day from 7 am to 3 pm with breakfast and lunch, showers, mail, phones, lockers, a barber and help with housing and benefits. From Nov. 1 to Mar. 31 its winter shelter has room for up to 300 adults and their pets.",
+  helps:["Daily meals, showers and lockers at the Day Shelter","Winter beds for adults, families and pets","Help getting into housing and applying for benefits"]},
+ {name:"City Rescue Mission",tag:"Shelter",url:"https://www.cityrescue.org/give",
+  what:"Emergency shelter, meals and recovery programs for men, women and families since 1960.",
+  about:"Open 24 hours, the mission gives men, women and families a place to sleep, along with meals, showers and clothing. People who want to stay longer join one of its recovery and life-skills programs.",
+  helps:["Emergency beds 24 hours a day","Meals, showers and clothing","Longer-term recovery programs"],
+  inPerson:{text:"Drop off clothing, toiletries and non-perishable food at the front desk.",addr:"800 W California Ave",phone:"405-232-2709"}},
+ {name:"Infant Crisis Services",tag:"Families",url:"https://www.infantcrisis.org/",
+  what:"Formula, food and diapers for babies and toddlers in crisis. SNAP and WIC don't cover diapers.",
+  about:"Gives formula, baby food and diapers to families with children under 4, by appointment on weekdays. Diapers are one of the hardest things for families to afford, because SNAP and WIC don't pay for them.",
+  helps:["Formula and baby food","Diapers and wipes","Help for families with children under 4"],
+  inPerson:{text:"Diapers, wipes, formula, baby clothes and books. Drop-off Mon–Fri, 8 am–5 pm.",addr:"4224 N Lincoln Blvd",phone:"405-528-3663"}},
+ {name:"Sisu Youth Services",tag:"Youth",url:"https://www.sisuyouth.org/",
+  what:"Overnight shelter, meals and case management for young people ages 15–24.",
+  about:"A low-barrier, LGBTQ+ affirming overnight shelter for young people ages 15 to 24, open seven nights a week. Along with a safe bed, young people get hot meals, clothing and a case manager who helps them plan what comes next.",
+  helps:["A safe bed seven nights a week","Hot meals and clothing","Case management for young people 15–24"]},
+ {name:"Hunger Free Oklahoma",tag:"Food",url:"https://www.hungerfreeok.org/",
+  what:"Runs the SNAP hotline and Double Up Oklahoma, helping families stretch food dollars.",
+  about:"Works on hunger across the state. It runs a free SNAP hotline (1-877-760-0114, English and Spanish) that helps people apply, and Double Up Oklahoma, which matches SNAP dollar for dollar, up to $20 a day, on Oklahoma-grown fruits and vegetables.",
+  helps:["Free help applying for SNAP","Double Up matches for fresh produce","Statewide work to end hunger"]}
 ];
 
 /* ---------- state ---------- */
 const DOWNTOWN = {lat:35.4676, lon:-97.5164, label:"Downtown Oklahoma City"};
-const S = {loc:{...DOWNTOWN}, custom:false, radius:5, type:"all", kinds:new Set(), openNow:false, sel:null, zoom:"fit"};
+const S = {loc:{...DOWNTOWN}, custom:false, radius:5, type:"all", kinds:new Set(), openNow:false, sel:null, zoom:"fit", sort:"distance"};
 try{ const r = localStorage.getItem("okcff-radius"); if(r) S.radius = Math.min(25,Math.max(1,+r||5)); }catch(e){}
+try{ const s = localStorage.getItem("okcff-sort"); if(s) S.sort = s; }catch(e){}
 
 const KIND_LABEL = {pantry:"Pantry",meal:"Hot meals",baby:"Baby & kids",overnight:"Overnight",day:"Day center",youth:"Youth",family:"Families",women:"Women"};
 const CHIPS = {all:[], food:["pantry","meal","baby"], shelter:["overnight","day","youth","family"]};
@@ -95,10 +118,33 @@ function card(p, n, sel){
     <span class="line">${p.addr?esc(p.addr):"Address not public · call for location"}</span>
   </article>`;
 }
+/* ---------- sorting ---------- */
+// Each place goes in one group when sorting by category; order here is display order.
+const GROUPS = ["Overnight shelters","Youth shelters","Women & families","Day centers","Food pantries","Hot meals","Baby & kids"];
+function groupOf(p){
+  const k = p.kind;
+  if(p.cat==="shelter"){
+    if(k.includes("youth")) return "Youth shelters";
+    if(k.includes("women")) return "Women & families";
+    if(k.includes("overnight")) return "Overnight shelters";
+    return "Day centers";
+  }
+  if(k.includes("baby")) return "Baby & kids";
+  if(k.includes("pantry")) return "Food pantries";
+  return "Hot meals";
+}
+const openRank = p => p.st.open===true ? 0 : p.st.open===null ? 1 : 2;
+const SORTS = {
+  distance: (a,b) => a.d-b.d,
+  category: (a,b) => GROUPS.indexOf(groupOf(a))-GROUPS.indexOf(groupOf(b)) || a.d-b.d,
+  open:     (a,b) => openRank(a)-openRank(b) || a.d-b.d,
+  name:     (a,b) => a.name.localeCompare(b.name)
+};
+
 function renderList(){
   const all = filtered();
   const mapped = all.filter(p=>p.d!=null);
-  const near = mapped.filter(p=>p.d<=S.radius).sort((a,b)=>a.d-b.d);
+  const near = mapped.filter(p=>p.d<=S.radius).sort(SORTS[S.sort]||SORTS.distance);
   const farther = mapped.length - near.length;
   const callOnly = all.filter(p=>p.d==null);
   // selection falls back to the closest place so the details panel is never empty
@@ -107,13 +153,26 @@ function renderList(){
   const noun = S.type==="food"?"food sources":S.type==="shelter"?"shelters":"places";
   $("#countH").textContent = `${near.length} ${near.length===1?noun.replace(/s$/,""):noun} within ${S.radius} mi`;
   $("#countS").textContent = farther ? `${farther} more farther away` : "";
-  let html = near.map((p,i)=>card(p,i+1,p.id===selId)).join("");
+  // a place the user picked is lifted to the top; it keeps its number so it still matches its pin
+  const num = new Map(near.map((p,i)=>[p.id,i+1]));
+  const picked = S.sel ? shown.find(p=>p.id===S.sel) : null;
+  const rest = near.filter(p=>p!==picked);
+  let html = rest.map((p,i)=>{
+    // category sort: a heading wherever the group changes
+    const g = S.sort==="category" && groupOf(p);
+    const head = g && (i===0 || groupOf(rest[i-1])!==g)
+      ? `<h3 class="group-h">${esc(g)} <span>${rest.filter(q=>groupOf(q)===g).length}</span></h3>` : "";
+    return head + card(p,num.get(p.id),p.id===selId);
+  }).join("");
   if(!near.length){
     html = `<div class="empty">Nothing matches within ${S.radius} miles${S.openNow?" that's open right now":""}.<br>${farther?`<button type="button" class="btn small" id="widen" style="margin-top:10px">Widen to ${Math.min(25,Math.ceil(Math.min(...mapped.map(p=>p.d)))+1)} mi</button>`:"Try clearing a filter."}</div>`;
   }
   if(callOnly.length){
-    html += `<div class="callonly"><h2>Call to reach</h2></div>` + callOnly.map(p=>card(p,0,p.id===selId)).join("");
+    const others = callOnly.filter(p=>p!==picked);
+    if(others.length) html += `<div class="callonly"><h2>Call to reach</h2></div>` + others.map(p=>card(p,0,p.id===selId)).join("");
   }
+  if(picked) html = `<div class="picked-h"><span>Selected</span><button type="button" class="btn ghost small" id="unpick">Show full list</button></div>`
+    + card(picked, num.get(picked.id)||0, true) + (near.length>1||callOnly.length>1 ? `<div class="picked-rest">Everything else</div>` : "") + html;
   $("#list").innerHTML = html;
   return {near, selId, sel: shown.find(p=>p.id===selId)};
 }
@@ -159,8 +218,8 @@ let lastView = "";
 
 // Pin glyphs (Lucide "utensils" and "house"); food pins are circles, shelter pins are rounded squares.
 const PIN_ICON = {
-  food:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>',
-  shelter:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>'
+  food:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>',
+  shelter:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>'
 };
 document.querySelectorAll(".legend [data-icon]").forEach(el=>{ el.innerHTML = PIN_ICON[el.dataset.icon]; });
 
@@ -174,7 +233,7 @@ function renderMap(near, selId){
       ? L.divIcon({className:"", html:`<span class="map-pin ${p.cat}${sel?" active":""}">${PIN_ICON[p.cat]}<b>${n}</b></span>`, iconSize:[32,32], iconAnchor:[16,16]})
       : L.divIcon({className:"", html:`<span class="map-pin ${p.cat} far">${PIN_ICON[p.cat]}</span>`, iconSize:[18,18], iconAnchor:[9,9]});
     L.marker([p.lat,p.lon], {icon, title:p.name, alt:p.name, zIndexOffset: sel?1000:n?500:0, riseOnHover:true})
-      .on("click", ()=>select(p.id,true)).addTo(layer);
+      .on("click", ()=>select(p.id)).addTo(layer);
   }
   L.marker([S.loc.lat,S.loc.lon], {icon:L.divIcon({className:"",html:'<div class="you-dot"></div>',iconSize:[18,18],iconAnchor:[9,9]}), interactive:false, zIndexOffset:2000}).addTo(layer);
   // only move the camera when the location/radius/zoom mode changes, so panning isn't undone by re-renders
@@ -214,6 +273,8 @@ $("#locateBtn").addEventListener("click", ()=>{
       : "Couldn't get your location. Try again, or enter a ZIP code.";
   }, {enableHighAccuracy:true, timeout:10000, maximumAge:60000});
 });
+$("#sortBy").value = S.sort;
+$("#sortBy").addEventListener("change", e=>{ S.sort=e.target.value; try{localStorage.setItem("okcff-sort",S.sort);}catch(_){} $("#list").scrollTop=0; render(); });
 $("#radius").addEventListener("input", e=>{ S.radius=+e.target.value; try{localStorage.setItem("okcff-radius",S.radius);}catch(_){} render(); });
 document.querySelector(".seg").addEventListener("click", e=>{
   const b = e.target.closest("button[data-type]"); if(!b) return;
@@ -229,10 +290,10 @@ $("#openNow").addEventListener("change", e=>{ S.openNow=e.target.checked; render
 $("#fitBtn").addEventListener("click", ()=>{ S.zoom="fit"; lastView=""; render(); });
 $("#allBtn").addEventListener("click", ()=>{ S.zoom="all"; lastView=""; render(); });
 
-function select(id, scroll){
+function select(id){
   S.sel = id;
   render();
-  if(scroll){ const c=document.getElementById("c-"+id); if(c) c.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth", block:"nearest"}); }
+  $("#list").scrollTop = 0; // selected card is now first; scroll only the list, never the page
 }
 map.on("click", e=>{
   S.loc = {lat:e.latlng.lat, lon:e.latlng.lng, label:"the spot you picked"}; S.custom=true; S.sel=null; S.zoom="fit";
@@ -244,16 +305,126 @@ function copyNumber(cp){
 }
 $("#details").addEventListener("click", e=>{ const cp=e.target.closest("[data-copy]"); if(cp) copyNumber(cp); });
 $("#list").addEventListener("click", e=>{
+  if(e.target.closest("#unpick")){ S.sel=null; render(); $("#list").scrollTop=0; return; }
   if(e.target.closest("#widen")){ const mapped=filtered().filter(p=>p.d!=null); S.radius=Math.min(25,Math.ceil(Math.min(...mapped.map(p=>p.d)))+1); render(); return; }
-  const c = e.target.closest(".card"); if(c) select(c.dataset.id,false);
+  const c = e.target.closest(".card"); if(c) select(c.dataset.id);
 });
-$("#list").addEventListener("keydown", e=>{ const c=e.target.closest(".card"); if(c&&(e.key==="Enter"||e.key===" ")){ e.preventDefault(); select(c.dataset.id,false); $("#c-"+c.dataset.id).focus(); } });
+$("#list").addEventListener("keydown", e=>{ const c=e.target.closest(".card"); if(c&&(e.key==="Enter"||e.key===" ")){ e.preventDefault(); select(c.dataset.id); $("#c-"+c.dataset.id).focus({preventScroll:true}); } });
 document.addEventListener("click", e=>{ if(e.target.id==="resetLoc"){ S.loc={...DOWNTOWN}; S.custom=false; S.zoom="fit"; $("#zipInput").value=""; render(); } });
 function selectText(el){ if(!el) return; const r=document.createRange(); r.selectNodeContents(el); const s=getSelection(); s.removeAllRanges(); s.addRange(r); }
 
 /* ---------- static views ---------- */
-$("#storeGrid").innerHTML = STORES.map(s=>`<div class="box"><h3>${esc(s.name)}</h3><p>${esc(s.what)}</p><a class="linkbtn ghost" href="${s.url}" target="_blank" rel="noopener">See deals</a></div>`).join("");
-$("#donateGrid").innerHTML = CHARITIES.map(c=>`<div class="box"><div class="eyebrow">${esc(c.tag)}</div><h3>${esc(c.name)}</h3><p>${esc(c.what)}</p><a class="linkbtn" href="${c.url}" target="_blank" rel="noopener">Donate</a></div>`).join("");
+$("#storeGrid").innerHTML = STORES.map(s=>`<li><div><h4>${esc(s.name)}</h4><p>${esc(s.what)}</p></div><a href="${s.url}" target="_blank" rel="noopener">See deals →</a></li>`).join("");
+
+/* ---------- donate: clothing drop-off locations ---------- */
+// Checked Oct. 24, 2026 against each organization's site, Goodwill's locator and the Homeless Alliance donation guide.
+// "check" marks details we couldn't confirm as current; the card tells people to call first.
+const CLOTHES = [
+ {group:"direct", name:"Homeless Alliance Resource Center", addr:"1724 NW 4th St, Oklahoma City, OK 73106",
+  hours:"Weekdays 9 am–3:30 pm · no weekends or holidays", url:"https://homelessalliance.org/donate-items",
+  takes:["Sneakers & work boots","Men's t-shirts & sweatshirts","Coats","Jeans","Bras"],
+  not:"Dress clothes, children's clothing or socks. Used items must be clean with no stains or tears.",
+  tip:"Park in the lot at NW 3rd St & Virginia Ave and use the double glass doors on the north side. Quietest times are 9:30–11 am and 1–3:30 pm."},
+ {group:"direct", name:"City Rescue Mission", addr:"800 W California Ave, Oklahoma City, OK 73106", phone:"405-232-2709",
+  hours:"Call for drop-off hours", check:true, url:"https://www.cityrescue.org/give",
+  takes:["Clothing","Toiletries","Non-perishable food"], tip:"Bring donations to the front desk."},
+ {group:"direct", name:"Infant Crisis Services", addr:"4224 N Lincoln Blvd, Oklahoma City, OK 73105", phone:"405-528-3663",
+  hours:"Mon–Fri 8 am–5 pm", url:"https://www.infantcrisis.org/",
+  takes:["Baby & kids' clothes, newborn–size 6","Shoes, sizes 0–8","Diapers & wipes","Books"]},
+ {group:"direct", name:"Sisu Youth Services", phone:"405-459-7478", hours:"Call before dropping off", check:true, url:"https://www.sisuyouth.org/",
+  takes:["Coats","Hand warmers","Sleeping bags"], tip:"Serves young people ages 15–24. Call to ask what's needed now and where to bring it."},
+ {group:"work", name:"Dress for Success Oklahoma City", addr:"133 W Main St, Suite 102, Oklahoma City, OK 73102",
+  hours:"First Friday of the month only", check:true,
+  takes:["Women's professional clothing","Blazers & blouses","Neutral flats & heels"], tip:"Clothing should be lightly used and in excellent condition."},
+ {group:"store", name:"Goodwill – NW 39th St", addr:"2016 NW 39th St, Oklahoma City, OK 73118", phone:"405-601-8220",
+  hours:"Mon–Sat 9 am–9 pm", url:"https://okgoodwill.org/locations/goodwill-thrift-store-on-39th-in-okc-2/", takes:["All clothing & shoes","Household goods"]},
+ {group:"store", name:"Goodwill – NW 122nd St", addr:"7000 NW 122nd St, Suite C, Oklahoma City, OK 73142", phone:"405-470-3241",
+  hours:"Mon–Sat 8 am–7 pm · Sun 10 am–6 pm", url:"https://okgoodwill.org/locations/goodwill-donation-center-on-nw-122nd-in-okc/", takes:["All clothing & shoes","Household goods"]},
+ {group:"store", name:"Goodwill – NW 23rd St", addr:"440 NW 23rd St, Suite C, Oklahoma City, OK 73103", phone:"405-600-9356", hours:"Call or check the Goodwill site for hours", takes:["All clothing & shoes"]},
+ {group:"store", name:"Goodwill – N May Ave", addr:"7420 N May Ave, Oklahoma City, OK 73116", phone:"405-286-9836", hours:"Call or check the Goodwill site for hours", takes:["All clothing & shoes"]},
+ {group:"store", name:"Goodwill – N Western Ave", addr:"8301 N Western Ave, Oklahoma City, OK 73114", phone:"405-286-9715", hours:"Call or check the Goodwill site for hours", takes:["All clothing & shoes"]},
+ {group:"store", name:"Goodwill – W Britton Rd", addr:"2917 W Britton Rd, Oklahoma City, OK 73120", phone:"405-608-2201", hours:"Call or check the Goodwill site for hours", takes:["All clothing & shoes"]},
+ {group:"store", name:"Goodwill – N MacArthur Blvd", addr:"13325 N MacArthur Blvd, Oklahoma City, OK 73142", phone:"405-470-7943", hours:"Call or check the Goodwill site for hours", takes:["All clothing & shoes"]},
+ {group:"store", name:"Goodwill – SW 89th St", addr:"2109 SW 89th St, Oklahoma City, OK 73159", phone:"405-681-7225", hours:"Call or check the Goodwill site for hours", takes:["All clothing & shoes"]},
+ {group:"store", name:"Goodwill – S Morgan Rd", addr:"1727 S Morgan Rd, Oklahoma City, OK 73128", hours:"Check the Goodwill site for hours", takes:["All clothing & shoes"]},
+ {group:"store", name:"The Salvation Army – free pickup", phone:"1-800-728-7825", hours:"Schedule a pickup online or by phone", url:"https://satruck.org/",
+  takes:["Bags of clothing","Furniture & large items"], tip:"Good for big loads. They come to you."}
+];
+const CLOTHES_GROUPS = {
+  direct:["Goes straight to people in need","Shelters and programs that hand clothing directly to the people they serve."],
+  work:["Work clothes","Professional outfits for people heading to job interviews."],
+  store:["Thrift stores & pickup","Take almost everything. Sales fund job training and community programs."]
+};
+function renderClothes(group){
+  const list = CLOTHES.filter(c=>group==="all" || c.group===group);
+  const groups = group==="all" ? Object.keys(CLOTHES_GROUPS) : [group];
+  $("#clothesList").innerHTML = groups.map(g=>{
+    const items = list.filter(c=>c.group===g); if(!items.length) return "";
+    return `<div class="cl-group"><h4>${esc(CLOTHES_GROUPS[g][0])}</h4><p class="muted">${esc(CLOTHES_GROUPS[g][1])}</p></div>` + items.map(c=>`
+      <article class="cl-card">
+        <h3>${esc(c.name)}</h3>
+        ${c.addr?`<p class="cl-addr">${esc(c.addr)}</p>`:""}
+        <p class="cl-hours${c.check?" check":""}">${esc(c.hours)}${c.check?" · confirm before you go":""}</p>
+        <ul class="cl-takes">${c.takes.map(t=>`<li>${esc(t)}</li>`).join("")}</ul>
+        ${c.not?`<p class="cl-not"><b>Not accepted:</b> ${esc(c.not)}</p>`:""}
+        ${c.tip?`<p class="note">${esc(c.tip)}</p>`:""}
+        <div class="actions">
+          ${c.addr?`<a class="btn small" href="${dirUrl(c)}" target="_blank" rel="noopener">Directions</a>`:""}
+          ${c.phone?`<a class="btn ghost small" href="tel:${c.phone.replace(/[^\d+]/g,"")}">Call ${esc(c.phone)}</a>`:""}
+          ${c.url?`<a class="btn ghost small" href="${c.url}" target="_blank" rel="noopener">Website</a>`:""}
+        </div>
+      </article>`).join("");
+  }).join("");
+}
+document.querySelector(".cl-filter").addEventListener("click", e=>{
+  const b = e.target.closest("[data-cl]"); if(!b) return;
+  document.querySelectorAll(".cl-filter [data-cl]").forEach(x=>x.setAttribute("aria-pressed", x===b));
+  renderClothes(b.dataset.cl);
+});
+renderClothes("all");
+document.getElementById("toClothes").addEventListener("click", ()=>document.getElementById("donate-clothes").scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}));
+
+/* ---------- donate: filterable scrolling list of charities ---------- */
+const giveList = $("#giveList");
+function renderGive(tag){
+  const shown = CHARITIES.filter(c=>tag==="all" || c.tag===tag);
+  giveList.innerHTML = shown.map(c=>`
+    <article class="give">
+      <div class="give-head">
+        <span class="give-mark" aria-hidden="true">${esc(c.name.charAt(0))}</span>
+        <div><div class="eyebrow">${esc(c.tag)}</div><h3>${esc(c.name)}</h3></div>
+      </div>
+      <p class="give-lede">${esc(c.what)}</p>
+      <p>${esc(c.about)}</p>
+      <div class="give-helps"><span class="label">Your gift helps with</span><ul>${c.helps.map(h=>`<li>${esc(h)}</li>`).join("")}</ul></div>
+      ${c.inPerson?`<div class="give-inperson"><span class="label">Give in person</span><p>${esc(c.inPerson.text)}</p><p class="note">${esc(c.inPerson.addr)} · <span class="phone">${esc(c.inPerson.phone)}</span></p></div>`:""}
+      <div class="actions"><a class="btn" href="${c.url}" target="_blank" rel="noopener" aria-label="Donate to ${esc(c.name)} (opens their website)">Donate</a><span class="note">Opens ${esc(new URL(c.url).hostname.replace(/^www\./,""))}</span></div>
+    </article>`).join("");
+  $("#giveCount").textContent = `${shown.length} ${shown.length===1?"charity":"charities"}`;
+  giveList.scrollTop = 0;
+}
+document.querySelector(".give-filter").addEventListener("click", e=>{
+  const b = e.target.closest("[data-tag]"); if(!b) return;
+  document.querySelectorAll(".give-filter [data-tag]").forEach(x=>x.setAttribute("aria-pressed", x===b));
+  renderGive(b.dataset.tag);
+});
+renderGive("all");
+
+/* ---------- SNAP & WIC: one scrolling panel with a section menu ---------- */
+// Buttons (not #links) so the hash router isn't triggered; scrolling stays inside the panel.
+const snapDoc = $("#snapDoc"), snapNav = document.querySelectorAll(".doc-nav [data-go]");
+document.querySelector(".doc-nav").addEventListener("click", e=>{
+  const b = e.target.closest("[data-go]"); if(!b) return;
+  const sec = document.getElementById(b.dataset.go);
+  snapDoc.scrollTo({top: sec.offsetTop, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
+});
+snapDoc.addEventListener("scroll", ()=>{
+  const atEnd = snapDoc.scrollTop + snapDoc.clientHeight >= snapDoc.scrollHeight - 4;
+  let cur = snapNav[0].dataset.go;
+  snapNav.forEach(b=>{ if(document.getElementById(b.dataset.go).offsetTop <= snapDoc.scrollTop + 60) cur = b.dataset.go; });
+  if(atEnd) cur = snapNav[snapNav.length-1].dataset.go;
+  snapNav.forEach(b=>b.setAttribute("aria-current", b.dataset.go===cur));
+}, {passive:true});
 
 /* ---------- routing ---------- */
 const VIEWS = ["find","snap","save","donate"];
