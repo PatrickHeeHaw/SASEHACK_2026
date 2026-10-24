@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OKC Food &amp; Shelter Finder</title>
+<meta name="description" content="Find free food, shelter and help near you in Oklahoma City.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="style.css">
+
+<a class="skip-link" href="#main">Skip to resources</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#find"><span aria-hidden="true">⌂</span>OKC Find Help</a>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#find" data-view="find">Find help</a>
+      <a href="#snap" data-view="snap">SNAP &amp; WIC</a>
+      <a href="#save" data-view="save">Save money</a>
+      <a href="#donate" data-view="donate">Donate</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="main">
+
+<!-- FIND -->
+<section class="view" id="view-find">
+  <div class="hero">
+    <h1>A little help, close to home.</h1>
+    <p>Find a meal or a place to rest in Oklahoma City. Take it one step at a time.</p>
+  </div>
+  <div class="find">
+    <div class="rail">
+      <div class="panel">
+        <div>
+          <div class="label">Your location</div>
+        </div>
+        <form class="zip" id="zipForm" autocomplete="off">
+          <input id="zipInput" inputmode="numeric" maxlength="5" placeholder="ZIP code, e.g. 73106" aria-label="ZIP code">
+          <button class="btn" type="submit">Search</button>
+        </form>
+        <button class="btn ghost locate" type="button" id="locateBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+          Use my current location
+        </button>
+        <p class="err" id="zipErr" hidden></p>
+        <p class="hint" id="locStatus" role="status" aria-live="polite"></p>
+        <p class="loc-now" id="locNow"></p>
+        <p class="hint">Or tap anywhere on the map to set your spot.</p>
+        <div>
+          <div class="label" style="margin-bottom:6px">Distance</div>
+          <div class="radius">
+            <input type="range" id="radius" min="1" max="25" step="1" value="5" aria-label="Search radius in miles">
+            <output id="radiusOut" for="radius">5 mi</output>
+          </div>
+        </div>
+        <div>
+          <div class="label" style="margin-bottom:6px">Looking for</div>
+          <div class="seg" role="group" aria-label="Type">
+            <button type="button" data-type="all" aria-pressed="true">All</button>
+            <button type="button" data-type="food" aria-pressed="false">Food</button>
+            <button type="button" data-type="shelter" aria-pressed="false">Shelter</button>
+          </div>
+        </div>
+        <div class="chips" id="chips"></div>
+        <label class="toggle"><input type="checkbox" id="openNow"> Open right now</label>
+      </div>
+
+      <div class="count"><h2 id="countH">Places near you</h2><span id="countS"></span></div>
+      <div class="list" id="list"></div>
+    </div>
+
+    <div class="mapcol">
+      <div class="mapbox">
+        <div id="map" role="region" aria-label="Map of Oklahoma City showing nearby food and shelter locations"></div>
+        <div class="mapctl">
+          <button type="button" id="fitBtn">Fit radius</button>
+          <button type="button" id="allBtn">All of OKC</button>
+        </div>
+      </div>
+      <div class="legend">
+        <span><i class="map-pin food lg" data-icon="food"></i>Food</span>
+        <span><i class="map-pin shelter lg" data-icon="shelter"></i>Shelter</span>
+        <span><i class="lg-you"></i>You</span>
+        <span>Faded pins are outside your distance</span>
+      </div>
+      <section id="details" class="details" aria-label="Selected place details" aria-live="polite"></section>
+    </div>
+  </div>
+</section>
+
+<!-- SNAP -->
+<section class="view" id="view-snap" hidden>
+  <div class="intro">
+    <h2>Food assistance programs</h2>
+    <p>SNAP (food stamps) and WIC put money on a card for groceries every month. Here's how to apply in Oklahoma and where to get help with the paperwork.</p>
+  </div>
+  <div class="grid">
+    <div class="box">
+      <div class="eyebrow">SNAP · food stamps</div>
+      <h3>Apply for SNAP</h3>
+      <ol>
+        <li>Apply online at OKDHSLive. It's the fastest way, and you can save and finish later.</li>
+        <li>Upload any documents they ask for, like pay stubs or ID.</li>
+        <li>Oklahoma Human Services calls you for a short interview.</li>
+        <li>If approved, your benefits arrive on an EBT card you use like a debit card.</li>
+      </ol>
+      <p class="note">Households with very little income may get expedited benefits within about 7 days. Most decisions take up to 30 days.</p>
+      <a class="linkbtn" href="https://www.okdhslive.org/" target="_blank" rel="noopener">Apply at okdhslive.org</a>
+    </div>
+    <div class="box">
+      <div class="eyebrow">Free help applying</div>
+      <h3>Talk to a person</h3>
+      <div class="kv">
+        <div><span>Hunger Free Oklahoma SNAP Hotline</span><span class="phone">1-877-760-0114</span></div>
+        <div><span>Hotline hours</span><span>Mon–Fri, 8 am–6 pm (English &amp; Spanish)</span></div>
+        <div><span>Oklahoma Human Services</span><span class="phone">405-522-5050</span></div>
+        <div><span>Lost or stolen EBT card</span><span class="phone">1-888-328-6551</span></div>
+      </div>
+      <div class="callout">Since Feb. 15, 2026, Oklahoma SNAP can no longer be used for candy or soft drinks.</div>
+      <p class="note">No computer? Most public libraries offer free internet, and staff can help you get started.</p>
+    </div>
+    <div class="box">
+      <div class="eyebrow">Double Up Oklahoma</div>
+      <h3>Get more produce for your SNAP</h3>
+      <p>Spend SNAP at a participating market or store and Double Up matches it dollar for dollar, up to $20 a day, for Oklahoma-grown fruits and vegetables. Everyone on SNAP qualifies automatically.</p>
+      <ul>
+        <li>The Market at EastPoint (northeast OKC grocery)</li>
+        <li>OKC Farmers Public Market</li>
+        <li>Eastside Fresh Market</li>
+        <li>Scissortail Park Farmers Market</li>
+      </ul>
+      <p class="note">Farmers markets are seasonal. At a market, stop by the information booth before you shop. Double Up dollars expire 60 days after you earn them.</p>
+      <a class="linkbtn ghost" href="https://www.hungerfreeok.org/resources/snap/" target="_blank" rel="noopener">Learn more at Hunger Free Oklahoma</a>
+    </div>
+    <div class="box">
+      <div class="eyebrow">WIC · moms, babies &amp; kids under 5</div>
+      <h3>Apply for WIC</h3>
+      <p>WIC provides healthy foods, infant formula, breastfeeding support and nutrition counseling for pregnant and postpartum parents, infants and children up to age 5.</p>
+      <div class="kv">
+        <div><span>OKC-County Health Dept. WIC</span><span class="phone">405-425-4384</span></div>
+        <div><span>Clinic hours</span><span>Mon–Fri 8 am–4:30 pm (Wed opens 10 am)</span></div>
+        <div><span>State WIC office</span><span class="phone">1-888-655-2942</span></div>
+      </div>
+      <p class="note">OKC clinics: North (2600 NE 63rd St), South (6728 S Hudson Ave), Hefner (2222 W Hefner Rd), West (1501 N Meridian Ave), Shepherd Center (2401 NW 23rd St, Ste 2G), and East (1701 S Air Depot Blvd, Midwest City).</p>
+      <a class="linkbtn ghost" href="https://oklahoma.gov/health/wic.html" target="_blank" rel="noopener">Oklahoma WIC</a>
+    </div>
+  </div>
+</section>
+
+<!-- SAVE -->
+<section class="view" id="view-save" hidden>
+  <div class="intro">
+    <h2>Stretch your grocery budget</h2>
+    <p>Digital coupons and store apps used around Oklahoma City, plus ways to use SNAP further.</p>
+  </div>
+  <div class="grid" id="storeGrid"></div>
+  <h3 class="section-h">Money-saving tips</h3>
+  <div class="grid">
+    <div class="box">
+      <h3>Use SNAP online</h3>
+      <p>Walmart, Amazon, and Aldi (through Instacart) accept SNAP EBT for online grocery orders, which helps if you don't have a ride to the store.</p>
+    </div>
+    <div class="box">
+      <h3>Double your produce</h3>
+      <p>Use SNAP where Double Up Oklahoma is offered and get matching dollars for fruits and vegetables. See the SNAP &amp; WIC tab for OKC locations.</p>
+    </div>
+    <div class="box">
+      <h3>Shop the weekly ad</h3>
+      <p>Plan meals around what's on sale this week, pick store brands, and buy rice, beans and oats in bulk. Clip digital coupons in the store's app before you check out.</p>
+    </div>
+    <div class="box soon-box">
+      <div class="eyebrow">Coming next</div>
+      <h3>Live weekly deals</h3>
+      <p>The next version will pull each store's current weekly deals into one list sorted by the stores closest to you.</p>
+    </div>
+  </div>
+</section>
+
+<!-- DONATE -->
+<section class="view" id="view-donate" hidden>
+  <div class="intro">
+    <h2>Give back in Oklahoma City</h2>
+    <p>Every link goes to the charity's own website, so your donation goes straight to them. Food, clothing and time help just as much as money.</p>
+  </div>
+  <div class="grid" id="donateGrid"></div>
+  <h3 class="section-h">Drop off items or volunteer</h3>
+  <div class="grid">
+    <div class="box">
+      <h3>City Rescue Mission</h3>
+      <p>Drop off clothing, toiletries and non-perishable food at the front desk.</p>
+      <p class="note">800 W California Ave · <span class="phone">405-232-2709</span></p>
+    </div>
+    <div class="box">
+      <h3>Infant Crisis Services</h3>
+      <p>Diapers, wipes, formula, baby clothes and books. Drop-off Mon–Fri, 8 am–5 pm.</p>
+      <p class="note">4224 N Lincoln Blvd · <span class="phone">405-528-3663</span></p>
+    </div>
+    <div class="box">
+      <h3>Regional Food Bank</h3>
+      <p>Volunteers sort and pack food for pantries across central and western Oklahoma. Groups and individuals welcome.</p>
+      <p class="note">3355 S Purdue Ave · <span class="phone">405-972-1111</span></p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <h2>Need help right now? Dial 211</h2>
+    <p>Heartline 2-1-1 connects you to food, shelter and crisis help anywhere in Oklahoma, 24 hours a day.</p>
+    <p>110 listings across the OKC metro, gathered Oct. 24, 2026 from the Regional Food Bank of Oklahoma partner-pantry locator, the Homeless Alliance, the Cities of Oklahoma City and Norman, Hunger Free Oklahoma and public food pantry directories. Hours change often, so call before you go.</p>
+    <p>Map pins are approximate. Use Directions for the exact address. "Open now" uses Oklahoma City time.</p>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
